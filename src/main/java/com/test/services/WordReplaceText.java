@@ -33,14 +33,6 @@ public class WordReplaceText {
             Section s = r.getSection(i);
             for (int j = 0; j < s.numParagraphs(); j++) {
                 Paragraph p = s.getParagraph(j);
-                /*for (int k = 0; k < p.numCharacterRuns(); k++) {
-                    CharacterRun run = p.getCharacterRun(k);
-                    //String text = run.text();
-                    //if (text.contains(findText)) {
-                        run.replaceText(findText, replaceText);
-
-                    //}
-                }*/
                 p.replaceText(findText, replaceText);
             }
         }

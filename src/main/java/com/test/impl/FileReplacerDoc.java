@@ -27,8 +27,6 @@ public class FileReplacerDoc implements FileReplacer {
             doc = instance.openDocument(rootFile.getAbsolutePath());
 
             for(int i=0; i<header.size(); i++){
-                //String temp_s = "$" + header.get(i) + "$";
-
                 doc = instance.replaceText(doc, "<" + header.get(i) + ">", record.get(i));
             }
 

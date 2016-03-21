@@ -24,22 +24,18 @@ public class FileReplacerTxt implements FileReplacer {
             String sCurrentLine;
             br = new BufferedReader(new FileReader(rootFile));
 
-            //File file = new File(path);
-            //FileWriter fw = new FileWriter(resultFile.getAbsoluteFile());
             Writer bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(resultFile.getAbsoluteFile()), "UTF-8"));
 
             while ((sCurrentLine = br.readLine()) != null) {
                 for(int i=0; i<header.size(); i++){
                     sCurrentLine = sCurrentLine.replaceAll("<" + header.get(i) + ">", record.get(i));
                 }
-                //System.out.println(sCurrentLine);
                 sCurrentLine += System.getProperty("line.separator");
                 bw.write(sCurrentLine);
             }
 
             System.out.println("Done");
             bw.close();
-            //fw.close();
 
         } catch (IOException e) {
             e.printStackTrace();

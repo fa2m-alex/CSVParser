@@ -22,18 +22,21 @@ public class CSVReader {
         return header;
     }
 
+    public List getRecords() {
+        return records;
+    }
+
     public CSVReader(File csvFile){
         this.csvFile = csvFile;
         this.header = generateHeader();
-        this.records = getRecords();
+        this.records = receiveRecords();
     }
 
-    public List getRecords(){
+    public List receiveRecords(){
         CSVFormat csvFileFormat = CSVFormat.EXCEL.withDelimiter(getDelimiter(csvFile));
         List result = null;
 
         try {
-            //FileReader fileReader = new FileReader(csvFile);
             InputStream inputStream = new FileInputStream(csvFile);
             Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
             CSVParser csvFileParser = new CSVParser(fileReader, csvFileFormat);
@@ -60,6 +63,8 @@ public class CSVReader {
         }
         return result;
     }
+
+
 
     private char getDelimiter(File file){
         BufferedReader br = null;

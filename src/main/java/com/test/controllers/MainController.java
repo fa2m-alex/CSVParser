@@ -50,9 +50,11 @@ public class MainController {
     private void setTable() throws ClassNotFoundException {
         headerTable.setEditable(true);
         headerTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
         for (int i = 1; i < csvReader.getRecords().size(); i++) {
             headerTable.getItems().add(i);
         }
+
         for(int i=0; i<csvReader.getHeader().size(); i++){
             TableColumn<Integer, String> column = new TableColumn<>(csvReader.getHeader().get(i));
             List list = csvReader.getVerticalRecords(i);
@@ -75,7 +77,6 @@ public class MainController {
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("CSV files", "*.csv"));
 
         File temp = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
-        //csvFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
 
         if(temp!=null){
             csvFile = temp;
@@ -93,7 +94,6 @@ public class MainController {
         fileChooser.getExtensionFilters().add(extFilter);
 
         File temp = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
-        //templateFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
 
         if(temp!=null){
             templateFile = temp;

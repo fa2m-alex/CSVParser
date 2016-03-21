@@ -28,8 +28,6 @@ public class App extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Replacer");
 
-        //primaryStage.setResizable(false);
-
         getLayout();
     }
 
