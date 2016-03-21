@@ -47,17 +47,21 @@ public class MainController {
 
 
     @FXML
-    private void setTable() throws ClassNotFoundException {
+    private void setTable(List records) throws ClassNotFoundException {
         headerTable.setEditable(true);
         headerTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        for (int i = 1; i < csvReader.getRecords().size(); i++) {
+        /*for (int i = 1; i < records.size(); i++) {
+            headerTable.getItems().add(i);
+        }*/
+
+        for (int i = 0; i < records.size(); i++) {
             headerTable.getItems().add(i);
         }
 
         for(int i=0; i<csvReader.getHeader().size(); i++){
             TableColumn<Integer, String> column = new TableColumn<>(csvReader.getHeader().get(i));
-            List list = csvReader.getVerticalRecords(i);
+            List list = csvReader.getVerticalRecords(i, records);
             column.setCellValueFactory(cellData -> {
                 Integer rowIndex = cellData.getValue();
                 return new ReadOnlyStringWrapper((String) list.get(rowIndex));
@@ -82,7 +86,8 @@ public class MainController {
             csvFile = temp;
             csvReader = new CSVReader(csvFile);
             clearTable();
-            setTable();
+            //setTable(csvReader.getRecords());
+            setTable(csvReader.searchRecords(""));
         }
     }
 

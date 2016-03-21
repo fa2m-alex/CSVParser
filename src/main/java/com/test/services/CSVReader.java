@@ -34,17 +34,21 @@ public class CSVReader {
 
     public List receiveRecords(){
         CSVFormat csvFileFormat = CSVFormat.EXCEL.withDelimiter(getDelimiter(csvFile));
-        List result = null;
+        List result = new LinkedList<>();
 
         try {
             InputStream inputStream = new FileInputStream(csvFile);
             Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
             CSVParser csvFileParser = new CSVParser(fileReader, csvFileFormat);
 
-            result = csvFileParser.getRecords();
+            List temp = csvFileParser.getRecords();
+            for(int i=1; i<temp.size(); i++){
+                result.add(temp.get(i));
+            }
 
             fileReader.close();
             inputStream.close();
+            csvFileParser.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -55,10 +59,23 @@ public class CSVReader {
         return result;
     }
 
-    public List getVerticalRecords(int index){
+    public List searchRecords(String word){
         List result = new LinkedList<>();
-        for(int i=0; i<records.size(); i++){
+        for (int i=0; i<records.size(); i++){
             CSVRecord record = (CSVRecord) records.get(i);
+            for(int j=0; j<record.size(); j++){
+                if(record.get(j).contains(word) && !result.contains(record)){
+                    result.add(record);
+                }
+            }
+        }
+        return result;
+    }
+
+    public List getVerticalRecords(int index, List recs){
+        List result = new LinkedList<>();
+        for(int i=0; i<recs.size(); i++){
+            CSVRecord record = (CSVRecord) recs.get(i);
             result.add(record.get(index));
         }
         return result;
