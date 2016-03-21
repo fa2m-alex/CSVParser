@@ -64,7 +64,7 @@ public class CSVReader {
         for (int i=0; i<records.size(); i++){
             CSVRecord record = (CSVRecord) records.get(i);
             for(int j=0; j<record.size(); j++){
-                if(record.get(j).contains(word) && !result.contains(record)){
+                if(record.get(j).toLowerCase().contains(word.toLowerCase()) && !result.contains(record)){
                     result.add(record);
                 }
             }

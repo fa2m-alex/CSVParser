@@ -34,12 +34,17 @@ public class MainController {
     @FXML
     private Button selectAllBut;
 
+    @FXML
+    private TextField searchField;
+
     // Reference to the main application
     private App mainApp;
 
     private CSVReader csvReader;
     private File csvFile;
     private File templateFile;
+
+    private List currentRecords;
 
     public void setMainApp(App mainApp) {
         this.mainApp = mainApp;
@@ -51,16 +56,13 @@ public class MainController {
         headerTable.setEditable(true);
         headerTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        /*for (int i = 1; i < records.size(); i++) {
-            headerTable.getItems().add(i);
-        }*/
-
         for (int i = 0; i < records.size(); i++) {
             headerTable.getItems().add(i);
         }
 
         for(int i=0; i<csvReader.getHeader().size(); i++){
             TableColumn<Integer, String> column = new TableColumn<>(csvReader.getHeader().get(i));
+            column.setSortable(false);
             List list = csvReader.getVerticalRecords(i, records);
             column.setCellValueFactory(cellData -> {
                 Integer rowIndex = cellData.getValue();
@@ -86,8 +88,8 @@ public class MainController {
             csvFile = temp;
             csvReader = new CSVReader(csvFile);
             clearTable();
-            //setTable(csvReader.getRecords());
-            setTable(csvReader.searchRecords(""));
+            setTable(csvReader.getRecords());
+            currentRecords = csvReader.getRecords();
         }
     }
 
@@ -130,7 +132,7 @@ public class MainController {
 
                 for(int i=0; i<headerTable.getSelectionModel().getSelectedIndices().size(); i++){
                     int temp = headerTable.getSelectionModel().getSelectedIndices().get(i);
-                    CSVRecord record = (CSVRecord) csvReader.getRecords().get(temp + 1);
+                    CSVRecord record = (CSVRecord) currentRecords.get(temp);
 
                     File file = null;
 
@@ -152,6 +154,22 @@ public class MainController {
         }
         else{
             showAlert("No files", "No files", "Please import files.");
+        }
+    }
+
+    @FXML
+    private void searchRecords(){
+        if(csvFile != null){
+            clearTable();
+            try {
+                setTable(csvReader.searchRecords(searchField.getText()));
+                currentRecords = csvReader.searchRecords(searchField.getText());
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            showMessage("", "", "");
         }
     }
 
