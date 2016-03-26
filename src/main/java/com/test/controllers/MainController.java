@@ -5,19 +5,17 @@ import com.test.impl.FileReplacerDoc;
 import com.test.impl.FileReplacerTxt;
 import com.test.interfaces.FileReplacer;
 import com.test.services.CSVReader;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.poi.hwpf.usermodel.Table;
+import org.apache.poi.hslf.record.Record;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,15 +25,18 @@ public class MainController {
 
     @FXML
     private TableView<Integer> headerTable = new TableView<>();;
-
     @FXML
     private Label txtLabel = new Label();
-
     @FXML
     private Button selectAllBut;
-
     @FXML
     private TextField searchField;
+    @FXML
+    private TextField coefficientField;
+    @FXML
+    private CheckBox activateCoef;
+    @FXML
+    private ChoiceBox<String> headerFields;
 
     // Reference to the main application
     private App mainApp;
@@ -90,6 +91,7 @@ public class MainController {
             clearTable();
             setTable(csvReader.getRecords());
             currentRecords = csvReader.getRecords();
+            initializeChoiceBox();
         }
     }
 
@@ -112,48 +114,61 @@ public class MainController {
     @FXML
     private void saveFile(){
         if(templateFile != null && csvFile != null){
-
-            FileReplacer fileReplacer = null;
-
-            if(templateFile.getName().contains(".txt")) {
-                fileReplacer = new FileReplacerTxt(templateFile);
-            }
-            else if(templateFile.getName().contains(".doc")){
-                fileReplacer = new FileReplacerDoc(templateFile);
-            }
-
-            int tableIndex = headerTable.getSelectionModel().getSelectedIndex();
-
-
-            if(tableIndex >= 0){
-
-                DirectoryChooser directoryChooser = new DirectoryChooser();
-                File directory = directoryChooser.showDialog(mainApp.getPrimaryStage());;
-
-                for(int i=0; i<headerTable.getSelectionModel().getSelectedIndices().size(); i++){
-                    int temp = headerTable.getSelectionModel().getSelectedIndices().get(i);
-                    CSVRecord record = (CSVRecord) currentRecords.get(temp);
-
-                    File file = null;
-
-                    if(directory != null) {
-                        file = new File(directory.getAbsolutePath() + "/" + i + "-" + templateFile.getName());
-                    }
-
-                    if (file != null) {
-                        fileReplacer.replaceTags(csvReader.getHeader(), record, file);
-                    }
-                }
-
-                if(directory != null)
-                    showMessage("Done", "Done", "Done");
+            if(!activateCoef.isSelected()){
+                replace();
             }
             else{
-                showAlert("No Selection", "No Row Selected", "Please select a row in the table.");
+                if(isNumber(coefficientField.getText())){
+                    replace();
+                }
             }
         }
         else{
             showAlert("No files", "No files", "Please import files.");
+        }
+    }
+
+    private void replace(){
+        FileReplacer fileReplacer = null;
+
+        if(templateFile.getName().contains(".txt")) {
+            fileReplacer = new FileReplacerTxt(templateFile);
+        }
+        else if(templateFile.getName().contains(".doc")){
+            fileReplacer = new FileReplacerDoc(templateFile);
+        }
+
+        int tableIndex = headerTable.getSelectionModel().getSelectedIndex();
+
+
+        if(tableIndex >= 0){
+
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            File directory = directoryChooser.showDialog(mainApp.getPrimaryStage());;
+
+            for(int i=0; i<headerTable.getSelectionModel().getSelectedIndices().size(); i++){
+                int temp = headerTable.getSelectionModel().getSelectedIndices().get(i);
+                CSVRecord record = (CSVRecord) currentRecords.get(temp);
+
+                File file = null;
+
+                if(directory != null) {
+                    file = new File(directory.getAbsolutePath() + "/" + i + "-" + templateFile.getName());
+                }
+
+                if (file != null) {
+                    if(activateCoef.isSelected() && isNumber(coefficientField.getText()))
+                        fileReplacer.replaceTagsWithCoef(csvReader.getHeader(), headerFields.getSelectionModel().getSelectedIndex(), Integer.parseInt(coefficientField.getText()), record, file);
+                    else
+                        fileReplacer.replaceTags(csvReader.getHeader(), record, file);
+                }
+            }
+
+            if(directory != null)
+                showMessage("Done", "Done", "Done");
+        }
+        else{
+            showAlert("No Selection", "No Row Selected", "Please select a row in the table.");
         }
     }
 
@@ -202,6 +217,49 @@ public class MainController {
     @FXML
     private void selectAll(){
         headerTable.getSelectionModel().selectAll();
+    }
+
+    @FXML
+    private void activateCoefficient(){
+        if(activateCoef.isSelected())
+            coefficientField.setDisable(false);
+        else
+            coefficientField.setDisable(true);
+    }
+
+    private void initializeChoiceBox(){
+        ObservableList<String> headerList = FXCollections.observableArrayList();
+
+        List list = csvReader.getHeader();
+
+        for(int i=0; i<list.size(); i++){
+            headerList.add((String) list.get(i));
+        }
+        headerFields.setItems(headerList);
+    }
+
+    private boolean isNumber(String string) {
+        String errorMessage = "";
+
+        if (string == null || string.length() == 0) {
+            errorMessage += "No valid coefficient!\n";
+        } else {
+            // try to parse the postal code into an int.
+            try {
+                Integer.parseInt(string);
+            } catch (NumberFormatException e) {
+                errorMessage += "No valid growth (must be an integer)!\n";
+            }
+        }
+
+        if (errorMessage.length() == 0) {
+            return true;
+        } else {
+            // Show the error message.
+            showAlert("", "", errorMessage);
+
+            return false;
+        }
     }
 
 }

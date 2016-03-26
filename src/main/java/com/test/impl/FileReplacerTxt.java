@@ -47,4 +47,43 @@ public class FileReplacerTxt implements FileReplacer {
             }
         }
     }
+
+    @Override
+    public void replaceTagsWithCoef(ArrayList<String> header, int headerIndex, int coefficient, CSVRecord record, File resultFile) {
+        BufferedReader br = null;
+
+        try {
+
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader(rootFile));
+
+            Writer bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(resultFile.getAbsoluteFile()), "UTF-8"));
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                for(int i=0; i<header.size(); i++){
+                    if(i == headerIndex) {
+                        int replacer = Integer.parseInt(record.get(i)) * coefficient;
+                        sCurrentLine = sCurrentLine.replaceAll("<" + header.get(i) + ">", String.valueOf(replacer));
+                    }
+                    else{
+                        sCurrentLine = sCurrentLine.replaceAll("<" + header.get(i) + ">", record.get(i));
+                    }
+                }
+                sCurrentLine += System.getProperty("line.separator");
+                bw.write(sCurrentLine);
+            }
+
+            System.out.println("Done");
+            bw.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null)br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 }
