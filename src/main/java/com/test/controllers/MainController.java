@@ -221,10 +221,15 @@ public class MainController {
 
     @FXML
     private void activateCoefficient(){
-        if(activateCoef.isSelected())
+        if(activateCoef.isSelected()){
             coefficientField.setDisable(false);
-        else
+            headerFields.setDisable(false);
+        }
+        else{
             coefficientField.setDisable(true);
+            headerFields.setDisable(true);
+        }
+
     }
 
     private void initializeChoiceBox(){
@@ -236,6 +241,7 @@ public class MainController {
             headerList.add((String) list.get(i));
         }
         headerFields.setItems(headerList);
+        headerFields.getSelectionModel().selectFirst();
     }
 
     private boolean isNumber(String string) {
