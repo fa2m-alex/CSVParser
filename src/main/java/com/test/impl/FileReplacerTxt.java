@@ -49,7 +49,7 @@ public class FileReplacerTxt implements FileReplacer {
     }
 
     @Override
-    public void replaceTagsWithCoef(ArrayList<String> header, int headerIndex, int coefficient, CSVRecord record, File resultFile) {
+    public void replaceTagsWithCoef(ArrayList<String> header, int headerIndex, double coefficient, CSVRecord record, File resultFile) {
         BufferedReader br = null;
 
         try {
@@ -62,7 +62,7 @@ public class FileReplacerTxt implements FileReplacer {
             while ((sCurrentLine = br.readLine()) != null) {
                 for(int i=0; i<header.size(); i++){
                     if(i == headerIndex) {
-                        int replacer = Integer.parseInt(record.get(i)) * coefficient;
+                        double replacer = Double.parseDouble(record.get(i)) * coefficient;
                         sCurrentLine = sCurrentLine.replaceAll("<" + header.get(i) + ">", String.valueOf(replacer));
                     }
                     else{

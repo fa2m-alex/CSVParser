@@ -158,7 +158,7 @@ public class MainController {
 
                 if (file != null) {
                     if(activateCoef.isSelected() && isNumber(coefficientField.getText()))
-                        fileReplacer.replaceTagsWithCoef(csvReader.getHeader(), headerFields.getSelectionModel().getSelectedIndex(), Integer.parseInt(coefficientField.getText()), record, file);
+                        fileReplacer.replaceTagsWithCoef(csvReader.getHeader(), headerFields.getSelectionModel().getSelectedIndex(), Double.parseDouble(coefficientField.getText()), record, file);
                     else
                         fileReplacer.replaceTags(csvReader.getHeader(), record, file);
                 }
@@ -252,9 +252,9 @@ public class MainController {
         } else {
             // try to parse the postal code into an int.
             try {
-                Integer.parseInt(string);
+                Double.parseDouble(string);
             } catch (NumberFormatException e) {
-                errorMessage += "No valid growth (must be an integer)!\n";
+                errorMessage += "No valid coefficient (must be an integer)!\n";
             }
         }
 

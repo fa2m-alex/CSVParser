@@ -10,5 +10,5 @@ import java.util.ArrayList;
  */
 public interface FileReplacer {
     public void replaceTags(ArrayList<String> header, CSVRecord record, File resultFile);
-    public void replaceTagsWithCoef(ArrayList<String> header, int headerIndex, int coefficient, CSVRecord record, File resultFile);
+    public void replaceTagsWithCoef(ArrayList<String> header, int headerIndex, double coefficient, CSVRecord record, File resultFile);
 }

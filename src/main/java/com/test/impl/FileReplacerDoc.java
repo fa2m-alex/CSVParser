@@ -38,7 +38,7 @@ public class FileReplacerDoc implements FileReplacer {
     }
 
     @Override
-    public void replaceTagsWithCoef(ArrayList<String> header, int headerIndex, int coefficient, CSVRecord record, File resultFile) {
+    public void replaceTagsWithCoef(ArrayList<String> header, int headerIndex, double coefficient, CSVRecord record, File resultFile) {
         WordReplaceText instance = new WordReplaceText();
         HWPFDocument doc = null;
         try {
@@ -46,7 +46,7 @@ public class FileReplacerDoc implements FileReplacer {
 
             for(int i=0; i<header.size(); i++){
                 if(i == headerIndex){
-                    int replacer = Integer.parseInt(record.get(i)) * coefficient;
+                    double replacer = Double.parseDouble(record.get(i)) * coefficient;
                     doc = instance.replaceText(doc, "<" + header.get(i) + ">", String.valueOf(replacer));
                 }
                 else{
