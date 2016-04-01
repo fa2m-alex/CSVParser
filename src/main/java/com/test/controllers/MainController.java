@@ -101,6 +101,7 @@ public class MainController {
     private void importTemplate(){
         FileChooser fileChooser = new FileChooser();
         // Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text files (*.docx)", "*.docx");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File temp = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
