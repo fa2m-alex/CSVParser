@@ -2,6 +2,7 @@ package com.test.controllers;
 
 import com.test.App;
 import com.test.impl.FileReplacerDoc;
+import com.test.impl.FileReplacerDocx;
 import com.test.impl.FileReplacerTxt;
 import com.test.interfaces.FileReplacer;
 import com.test.services.CSVReader;
@@ -56,6 +57,7 @@ public class MainController {
     private void setTable(List records) throws ClassNotFoundException {
         headerTable.setEditable(true);
         headerTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        //headerTable.getSelectionModel().setCellSelectionEnabled(true);
 
         for (int i = 0; i < records.size(); i++) {
             headerTable.getItems().add(i);
@@ -99,7 +101,6 @@ public class MainController {
     private void importTemplate(){
         FileChooser fileChooser = new FileChooser();
         // Set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Text files (*.txt), (*.doc)", "*.txt", "*.doc");
         fileChooser.getExtensionFilters().add(extFilter);
 
         File temp = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
@@ -133,6 +134,9 @@ public class MainController {
 
         if(templateFile.getName().contains(".txt")) {
             fileReplacer = new FileReplacerTxt(templateFile);
+        }
+        else if(templateFile.getName().contains(".docx")){
+            fileReplacer = new FileReplacerDocx(templateFile);
         }
         else if(templateFile.getName().contains(".doc")){
             fileReplacer = new FileReplacerDoc(templateFile);

@@ -26,10 +26,10 @@ public class FileReplacerDoc implements FileReplacer {
         try {
             doc = instance.openDocument(rootFile.getAbsolutePath());
 
+
             for(int i=0; i<header.size(); i++){
                 doc = instance.replaceText(doc, "<" + header.get(i) + ">", record.get(i));
             }
-
             instance.saveDocument(doc, resultFile.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
