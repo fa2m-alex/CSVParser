@@ -10,13 +10,19 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.poi.hslf.record.Record;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -270,6 +276,49 @@ public class MainController {
             showAlert("", "", errorMessage);
 
             return false;
+        }
+    }
+
+    @FXML
+    private void importFromFtp() throws ClassNotFoundException {
+        File temp = getFromFtp();
+
+        if(temp!=null){
+            csvFile = temp;
+            csvReader = new CSVReader(csvFile);
+            clearTable();
+            setTable(csvReader.getRecords());
+            currentRecords = csvReader.getRecords();
+            initializeChoiceBox();
+        }
+    }
+
+    private File getFromFtp(){
+        try {
+            // Load the fxml file and create a new stage for the popup dialog.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(App.class.getResource("/view/Ftp.fxml"));
+            GridPane page = (GridPane) loader.load();
+
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Load");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(mainApp.getPrimaryStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            // Set the person into the controller.
+            FtpController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+
+            // Show the dialog and wait until the user closes it
+            dialogStage.showAndWait();
+
+            return controller.getFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

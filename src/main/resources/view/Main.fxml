@@ -15,6 +15,7 @@
                   <items>
                     <MenuItem mnemonicParsing="false" onAction="#importCsv" text="Import *.csv" />
                         <MenuItem mnemonicParsing="false" onAction="#importTemplate" text="Import template" />
+                        <MenuItem mnemonicParsing="false" onAction="#importFromFtp" text="Import csv from ftp server" />
                   </items>
                 </Menu>
               </menus>
