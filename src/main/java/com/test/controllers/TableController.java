@@ -1,5 +1,6 @@
 package com.test.controllers;
 
+import com.independentsoft.office.ExtendedBoolean;
 import com.independentsoft.office.word.Paragraph;
 import com.independentsoft.office.word.Run;
 import com.independentsoft.office.word.StandardBorderStyle;
@@ -12,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,17 +79,19 @@ public class TableController {
 
     @FXML
     public Table getTable(){
-        //if(table.getSelectionModel().getSelectedCells().size() > 0){
+        ArrayList<String> headerItemsStr = new ArrayList<String>();
             ArrayList<Paragraph> headerItems = new ArrayList<Paragraph>();
             ObservableList<TablePosition> selectedCells = table.getSelectionModel().getSelectedCells();
 
             for(int i=0; i<selectedCells.size(); i++){
-                if(!headerItems.contains(header.get(selectedCells.get(i).getColumn()))){
+                if(!headerItemsStr.contains(header.get(selectedCells.get(i).getColumn()).toString())){
                     Paragraph temp = new Paragraph();
                     String text = header.get(selectedCells.get(i).getColumn()).toString();
                     Run run = new Run(text);
+                    run.setBold(ExtendedBoolean.TRUE);
                     temp.add(run);
                     headerItems.add(temp);
+                    headerItemsStr.add(text);
                 }
             }
 
@@ -105,10 +109,42 @@ public class TableController {
                 headerRow.add(headerCells.get(i));
             }
 
+        ArrayList<Row> rows = new ArrayList<Row>();
+
+            /**********************************/
+            for(int i=0; i<table.getSelectionModel().getSelectedIndices().size(); i++){
+
+                CSVRecord record = (CSVRecord) records.get(i);
+                Row tempRow = new Row();
+                //String str = "";
+                for(int j=0; j<table.getSelectionModel().getSelectedCells().size(); j++){
+                    if(table.getSelectionModel().getSelectedCells().get(j).getRow() == i){
+                        Paragraph tempPar = new Paragraph();
+                        String text = record.get(table.getSelectionModel().getSelectedCells().get(j).getColumn());
+                        Run run = new Run(text);
+                        tempPar.add(run);
+                        Cell tempCell = new Cell();
+                        tempCell.add(tempPar);
+                        tempRow.add(tempCell);
+                        //str += record.get(table.getSelectionModel().getSelectedCells().get(j).getColumn());
+                    }
+                }
+
+                rows.add(tempRow);
+                //System.out.println(str);
+            }
+        /**************************************/
+
+
             Table table1 = new Table(StandardBorderStyle.SINGLE_LINE);
             table1.setWidth(new Width(TableWidthUnit.PERCENT, 100));
 
             table1.add(headerRow);
+
+        for(int i=0; i<rows.size(); i++){
+            table1.add(rows.get(i));
+        }
+
 
             dialogStage.close();
 
@@ -116,6 +152,9 @@ public class TableController {
                 return table1;
             else
                 return null;
+
+
+
 
     }
 
