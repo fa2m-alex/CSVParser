@@ -52,7 +52,7 @@ public class FtpController {
         String errorMessage = "";
 
         if (serverField.getText() == null || serverField.getText().length() == 0) {
-            errorMessage += "No valid ...!\n";
+            errorMessage += "No valid server name!\n";
         }
         if (userField.getText() == null || userField.getText().length() == 0) {
             errorMessage += "No valid username!\n";
@@ -61,7 +61,7 @@ public class FtpController {
             errorMessage += "No valid pass!\n";
         }
         if (pathField.getText() == null || pathField.getText().length() == 0) {
-            errorMessage += "No valid username!\n";
+            errorMessage += "No valid path!\n";
         }
 
         if (errorMessage.length() == 0) {
@@ -124,5 +124,10 @@ public class FtpController {
                 }
             }
         }
+    }
+
+    @FXML
+    private void handleCancel(){
+        dialogStage.close();
     }
 }

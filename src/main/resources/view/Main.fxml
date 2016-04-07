@@ -85,6 +85,16 @@
                         <Insets left="3.0" />
                      </GridPane.margin>
                   </ChoiceBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="3.0" GridPane.rowIndex="2">
+                     <children>
+                        <Button fx:id="getTableButton" disable="true" mnemonicParsing="false" onAction="#oneDoc" text="Get table" />
+                        <CheckBox fx:id="inOneDocBox" mnemonicParsing="false" onAction="#activateOneDocBox" text="In one doc" />
+                        <Label fx:id="cellLabel" />
+                     </children>
+                     <GridPane.margin>
+                        <Insets left="3.0" top="3.0" />
+                     </GridPane.margin>
+                  </HBox>
                </children>
             </GridPane>
          </bottom>

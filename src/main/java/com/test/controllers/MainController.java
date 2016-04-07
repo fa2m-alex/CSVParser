@@ -1,5 +1,7 @@
 package com.test.controllers;
 
+import com.independentsoft.office.word.*;
+import com.independentsoft.office.word.tables.Table;
 import com.test.App;
 import com.test.impl.FileReplacerDoc;
 import com.test.impl.FileReplacerDocx;
@@ -13,13 +15,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.poi.hslf.record.Record;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +46,11 @@ public class MainController {
     @FXML
     private CheckBox activateCoef;
     @FXML
+    private CheckBox inOneDocBox;
+    @FXML
     private ChoiceBox<String> headerFields;
+    @FXML
+    private Label cellLabel;
 
     // Reference to the main application
     private App mainApp;
@@ -54,6 +61,11 @@ public class MainController {
 
     private List currentRecords;
 
+    private Table cellTable;
+
+    @FXML
+    private Button getTableButton;
+
     public void setMainApp(App mainApp) {
         this.mainApp = mainApp;
     }
@@ -63,7 +75,7 @@ public class MainController {
     private void setTable(List records) throws ClassNotFoundException {
         headerTable.setEditable(true);
         headerTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        //headerTable.getSelectionModel().setCellSelectionEnabled(true);
+       // headerTable.getSelectionModel().setCellSelectionEnabled(true);
 
         for (int i = 0; i < records.size(); i++) {
             headerTable.getItems().add(i);
@@ -104,6 +116,51 @@ public class MainController {
     }
 
     @FXML
+    private void oneDoc(){
+        if(csvFile != null){
+            Table temp = getCellTable();
+            if(temp != null){
+                this.cellTable = temp;
+                cellLabel.setText("Table loaded");
+            }
+        }
+        else{
+            showAlert("No files", "No files", "Please import csv file.");
+        }
+
+    }
+
+    private Table getCellTable(){
+        try {
+            // Load the fxml file and create a new stage for the popup dialog.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(App.class.getResource("/view/Table.fxml"));
+            BorderPane page = (BorderPane) loader.load();
+
+            // Create the dialog Stage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Table");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(mainApp.getPrimaryStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            // Set the person into the controller.
+            TableController controller = loader.getController();
+            controller.setHeaderRecords(csvReader.getHeader(), currentRecords, csvReader);
+            controller.setDialogStage(dialogStage);
+            controller.setMainApp(mainApp);
+            // Show the dialog and wait until the user closes it
+            dialogStage.showAndWait();
+
+            return controller.getTable();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @FXML
     private void importTemplate(){
         FileChooser fileChooser = new FileChooser();
         // Set extension filter
@@ -134,6 +191,7 @@ public class MainController {
         else{
             showAlert("No files", "No files", "Please import files.");
         }
+
     }
 
     private void replace(){
@@ -157,23 +215,40 @@ public class MainController {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             File directory = directoryChooser.showDialog(mainApp.getPrimaryStage());;
 
-            for(int i=0; i<headerTable.getSelectionModel().getSelectedIndices().size(); i++){
-                int temp = headerTable.getSelectionModel().getSelectedIndices().get(i);
-                CSVRecord record = (CSVRecord) currentRecords.get(temp);
+            if(inOneDocBox.isSelected() && cellTable != null){
+                CSVRecord record = (CSVRecord) currentRecords.get(headerTable.getSelectionModel().getSelectedIndex());
 
                 File file = null;
 
                 if(directory != null) {
-                    file = new File(directory.getAbsolutePath() + "/" + i + "-" + templateFile.getName());
+                    file = new File(directory.getAbsolutePath() + "/" + "new" + "-" + templateFile.getName());
                 }
 
-                if (file != null) {
-                    if(activateCoef.isSelected() && isNumber(coefficientField.getText()))
-                        fileReplacer.replaceTagsWithCoef(csvReader.getHeader(), headerFields.getSelectionModel().getSelectedIndex(), Double.parseDouble(coefficientField.getText()), record, file);
-                    else
-                        fileReplacer.replaceTags(csvReader.getHeader(), record, file);
+                fileReplacer.replaceInOneDoc(csvReader.getHeader(), record, file, cellTable);
+            }
+            else{
+                for(int i=0; i<headerTable.getSelectionModel().getSelectedIndices().size(); i++){
+                    int temp = headerTable.getSelectionModel().getSelectedIndices().get(i);
+                    CSVRecord record = (CSVRecord) currentRecords.get(temp);
+
+                    File file = null;
+
+                    if(directory != null) {
+                        file = new File(directory.getAbsolutePath() + "/" + i + "-" + templateFile.getName());
+                    }
+
+                    if (file != null) {
+                        if(activateCoef.isSelected())
+                            fileReplacer.replaceTagsWithCoef(csvReader.getHeader(), headerFields.getSelectionModel().getSelectedIndex(), Double.parseDouble(coefficientField.getText()), record, file);
+                        else
+                            fileReplacer.replaceTags(csvReader.getHeader(), record, file);
+
+                    }
                 }
             }
+
+
+            //replaceTable(file, cellTable);
 
             if(directory != null)
                 showMessage("Done", "Done", "Done");
@@ -243,13 +318,26 @@ public class MainController {
 
     }
 
+    @FXML
+    private void activateOneDocBox(){
+        if(inOneDocBox.isSelected()){
+            getTableButton.setDisable(false);
+            headerTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        }
+        else{
+            getTableButton.setDisable(true);
+            headerTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        }
+    }
+
     private void initializeChoiceBox(){
         ObservableList<String> headerList = FXCollections.observableArrayList();
 
         List list = csvReader.getHeader();
 
         for(int i=0; i<list.size(); i++){
-            headerList.add((String) list.get(i));
+            if(isNumberPure(csvReader.getVerticalRecords(i, currentRecords).get(0).toString()))
+                headerList.add((String) list.get(i));
         }
         headerFields.setItems(headerList);
         headerFields.getSelectionModel().selectFirst();
@@ -275,6 +363,27 @@ public class MainController {
             // Show the error message.
             showAlert("", "", errorMessage);
 
+            return false;
+        }
+    }
+
+    private boolean isNumberPure(String string){
+        String errorMessage = "";
+
+        if (string == null || string.length() == 0) {
+            errorMessage += "No valid coefficient!\n";
+        } else {
+            // try to parse the postal code into an int.
+            try {
+                Double.parseDouble(string);
+            } catch (NumberFormatException e) {
+                errorMessage += "No valid coefficient (must be an integer)!\n";
+            }
+        }
+
+        if (errorMessage.length() == 0) {
+            return true;
+        } else {
             return false;
         }
     }
@@ -319,6 +428,53 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void replaceTable(File file, Table table){
+        try
+        {
+            WordDocument doc = new WordDocument(file.getAbsolutePath());
+
+            for(int i=0; i < doc.getBody().getContent().size(); i++)
+            {
+                if(doc.getBody().getContent().get(i) instanceof Paragraph)
+                {
+                    Paragraph paragraph = (Paragraph)doc.getBody().getContent().get(i);
+
+                    String paragraphText = "";
+
+                    for(IParagraphContent pContent : paragraph.getContent())
+                    {
+                        if(pContent instanceof Run)
+                        {
+                            Run run = (Run)pContent;
+
+                            for(IRunContent rContent : run.getContent())
+                            {
+                                if(rContent instanceof Text)
+                                {
+                                    Text text = (Text)rContent;
+                                    paragraphText += text.getValue();
+                                }
+                            }
+                        }
+                    }
+
+                    if(paragraphText.indexOf("<table>") > -1)
+                    {
+                        paragraph.getContent().clear();
+                        doc.getBody().getContent().add(i,table);
+                    }
+                }
+            }
+
+            doc.save(file.getAbsolutePath(), true);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

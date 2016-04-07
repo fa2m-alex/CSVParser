@@ -1,5 +1,6 @@
 package com.test.impl;
 
+import com.independentsoft.office.word.tables.Table;
 import com.test.interfaces.FileReplacer;
 import com.test.services.WordReplaceText;
 import org.apache.commons.csv.CSVRecord;
@@ -58,5 +59,10 @@ public class FileReplacerDoc implements FileReplacer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void replaceInOneDoc(ArrayList<String> header, CSVRecord record, File file, Table cellTable) {
+
     }
 }
